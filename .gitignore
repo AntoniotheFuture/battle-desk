@@ -2,4 +2,6 @@
 # 此 .gitignore 文件已由 Microsoft(R) Visual Studio 自动创建。
 ################################################################################
 
-/win/battle-desk/.vs/battle-desk
+/win/battle-desk/.vs
+/win/battle-desk/Debug/
+/win/battle-desk/x64/
