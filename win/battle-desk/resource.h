@@ -25,6 +25,14 @@
 #define ID_COLORPICKER                  140
 #define ID_STROKECOLORPICKER            141
 #define ID_HELP                         142
+#define ID_ENABLE                       143
+#define ID_SCREEN                       145
+#define ID_X_SPLIT                      146
+#define ID_Y_SPLIT                      147
+#define ID_LINE_WIDTH                   148
+#define ID_OPPOESD                      149
+#define ID_GRID                         150
+#define ID_FONT_SIZE                    151
 
 // Next default values for new objects
 // 

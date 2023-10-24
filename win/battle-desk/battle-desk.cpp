@@ -20,6 +20,8 @@ std::vector<std::string> screenList;
 ATOM                MyRegisterClass(HINSTANCE hInstance);
 BOOL                InitInstance(HINSTANCE, int);
 LRESULT CALLBACK    WndProc(HWND, UINT, WPARAM, LPARAM);
+LRESULT CALLBACK    WndProcB(HWND, UINT, WPARAM, LPARAM);
+
 
 // values limit
 INT MIN_X_SPLIT = 2;
@@ -31,7 +33,8 @@ INT MAX_FONT_SIZE = 100;
 INT MIN_LINE_WIDTH = 2;
 INT MAX_LINE_WIDTH = 100;
 
-BOOL ENABLE = TRUE;
+INT SCREEN = 0;
+bool ENABLE = TRUE;
 COLORREF DRAW_COLOR = RGB(255, 0, 0);
 COLORREF LINE_STROKE_COLOR = RGB(255, 255, 255);
 BYTE ALPHA = 255;
@@ -51,7 +54,22 @@ HWND fontSizeText;
 HWND colorPicker;
 HWND strokePicker;
 
+
+HWND screenSelect;
+HWND enableCheck;
+HWND xSplitSelect;
+HWND ySplitSelect;
+
+HWND opposedCheck;
+HWND gridCheck;
+
+
+
 HWND helpBtn;
+
+HWND screenHwnd;
+
+WNDCLASSEX wct;
 
 void GetScreenList() {
     int screenCount = GetSystemMetrics(SM_CMONITORS);
@@ -75,10 +93,32 @@ void saveConfig() {
 
 }
 
+
+void renderScreen() {
+    if (!ENABLE) {
+        CloseWindow(screenHwnd);
+        UpdateWindow(screenHwnd);
+        return;
+    }
+    if (IsWindow(screenHwnd) == 0) {
+        screenHwnd = CreateWindow(wct.lpszClassName, _T("绘制线条和文字示例"), WS_POPUP, 0, 0, 1920, 1080, NULL, NULL, hInst, NULL);
+    }
+    SetWindowLong(screenHwnd, GWL_EXSTYLE, GetWindowLong(screenHwnd, GWL_EXSTYLE) | WS_EX_LAYERED);
+    SetLayeredWindowAttributes(screenHwnd, RGB(0, 0, 0), 0, LWA_COLORKEY);
+
+    // 置于顶部
+    SetWindowPos(screenHwnd, HWND_TOPMOST, 0, 0, 0, 0, SWP_NOMOVE | SWP_NOSIZE);
+    ShowWindow(screenHwnd, SW_SHOWDEFAULT);
+    // UpdateWindow(screenHwnd);
+    RedrawWindow(screenHwnd, NULL, NULL, RDW_INVALIDATE);
+}
+
 // render to all screens
 void render() {
 
+    renderScreen();
 }
+
 
 
 int APIENTRY wWinMain(_In_ HINSTANCE hInstance,
@@ -96,6 +136,8 @@ int APIENTRY wWinMain(_In_ HINSTANCE hInstance,
     LoadStringW(hInstance, IDS_APP_TITLE, szTitle, MAX_LOADSTRING);
     LoadStringW(hInstance, IDC_BATTLEDESK, szWindowClass, MAX_LOADSTRING);
     MyRegisterClass(hInstance);
+    wct = { sizeof(WNDCLASSEX), CS_CLASSDC, WndProcB, 0L, 0L, GetModuleHandle(NULL), NULL, NULL, NULL, NULL, _T("MyWindow"), NULL };
+    RegisterClassEx(&wct);
 
     // 执行应用程序初始化:
     if (!InitInstance (hInstance, nCmdShow))
@@ -180,15 +222,15 @@ BOOL InitInstance(HINSTANCE hInstance, int nCmdShow)
 void drawForm(HWND hWnd)
 {
     // icons
-    HBITMAP screenIcon = (HBITMAP)LoadImageW(NULL, L"src//screen.bmp", IMAGE_BITMAP, 0, 0, LR_LOADFROMFILE);
-    HBITMAP xSplitIcon = (HBITMAP)LoadImageW(NULL, L"src//x_split.bmp", IMAGE_BITMAP, 0, 0, LR_LOADFROMFILE);
-    HBITMAP ySplitIcon = (HBITMAP)LoadImageW(NULL, L"src//y_split.bmp", IMAGE_BITMAP, 0, 0, LR_LOADFROMFILE);
-    HBITMAP lineWidthIcon = (HBITMAP)LoadImageW(NULL, L"src//line_width.bmp", IMAGE_BITMAP, 0, 0, LR_LOADFROMFILE);
-    HBITMAP opposedIcon = (HBITMAP)LoadImageW(NULL, L"src//opposed.bmp", IMAGE_BITMAP, 0, 0, LR_LOADFROMFILE);
-    HBITMAP gridIcon = (HBITMAP)LoadImageW(NULL, L"src//grid.bmp", IMAGE_BITMAP, 0, 0, LR_LOADFROMFILE);
-    HBITMAP colorPadIcon = (HBITMAP)LoadImageW(NULL, L"src//color_pad.bmp", IMAGE_BITMAP, 0, 0, LR_LOADFROMFILE);
-    HBITMAP fontSizeIcon = (HBITMAP)LoadImageW(NULL, L"src//font_size.bmp", IMAGE_BITMAP, 0, 0, LR_LOADFROMFILE);
-    HBITMAP helpIcon = (HBITMAP)LoadImageW(NULL, L"src//help.bmp", IMAGE_BITMAP, 0, 0, LR_LOADFROMFILE);
+    HBITMAP screenIcon = (HBITMAP)LoadImageW(GetModuleHandle(NULL), MAKEINTRESOURCE(IDB_BITMAP7), IMAGE_BITMAP, 0, 0, 0);
+    HBITMAP xSplitIcon = (HBITMAP)LoadImageW(GetModuleHandle(NULL), MAKEINTRESOURCE(IDB_BITMAP8), IMAGE_BITMAP, 0, 0, 0);
+    HBITMAP ySplitIcon = (HBITMAP)LoadImageW(GetModuleHandle(NULL), MAKEINTRESOURCE(IDB_BITMAP9), IMAGE_BITMAP, 0, 0, 0);
+    HBITMAP lineWidthIcon = (HBITMAP)LoadImageW(GetModuleHandle(NULL), MAKEINTRESOURCE(IDB_BITMAP5), IMAGE_BITMAP, 0, 0, 0);
+    HBITMAP opposedIcon = (HBITMAP)LoadImageW(GetModuleHandle(NULL), MAKEINTRESOURCE(IDB_BITMAP6), IMAGE_BITMAP, 0, 0, 0);
+    HBITMAP gridIcon = (HBITMAP)LoadImageW(GetModuleHandle(NULL), MAKEINTRESOURCE(IDB_BITMAP3), IMAGE_BITMAP, 0, 0, 0);
+    HBITMAP colorPadIcon = (HBITMAP)LoadImageW(GetModuleHandle(NULL), MAKEINTRESOURCE(IDB_BITMAP1), IMAGE_BITMAP, 0, 0, 0);
+    HBITMAP fontSizeIcon = (HBITMAP)LoadImageW(GetModuleHandle(NULL), MAKEINTRESOURCE(IDB_BITMAP2), IMAGE_BITMAP, 0, 0, 0);
+    HBITMAP helpIcon = (HBITMAP)LoadImageW(GetModuleHandle(NULL), MAKEINTRESOURCE(IDB_BITMAP4), IMAGE_BITMAP, 0, 0, 0);
 
     HWND hImage1 = CreateWindowW(L"STATIC", L"", WS_CHILD | WS_VISIBLE | SS_BITMAP, 10, 10, 50, 50, hWnd, NULL, hInst, NULL);
     HWND hImage2 = CreateWindowW(L"STATIC", L"", WS_CHILD | WS_VISIBLE | SS_BITMAP, 10, 60, 50, 50, hWnd, NULL, hInst, NULL);
@@ -212,16 +254,16 @@ void drawForm(HWND hWnd)
 
 
     // screen select
-    HWND screenSelect = CreateWindowW(L"COMBOBOX", L"", WS_CHILD | WS_VISIBLE | CBS_DROPDOWNLIST, 60, 16, 250, 400, hWnd, NULL, hInst, NULL);
+    screenSelect = CreateWindowW(L"COMBOBOX", L"", WS_CHILD | WS_VISIBLE | CBS_DROPDOWNLIST, 60, 16, 250, 400, hWnd, (HMENU)ID_SCREEN, hInst, NULL);
     for (const std::string& screen : screenList) {
         std::wstring wstr(screen.begin(), screen.end());
         SendMessage(screenSelect, CB_ADDSTRING, 0, (LPARAM)wstr.c_str());
     }
     SendMessage(screenSelect, CB_SETCURSEL, 0, 0);
-    HWND enableCheck = CreateWindowW(L"Button", L"", WS_CHILD | WS_VISIBLE | BS_AUTOCHECKBOX, 330, 16, 30, 30, hWnd, NULL, hInst, NULL);
+    enableCheck = CreateWindowW(L"Button", L"", WS_CHILD | WS_VISIBLE | BS_AUTOCHECKBOX, 330, 16, 30, 30, hWnd, (HMENU)ID_ENABLE, hInst, NULL);
 
     // split select
-    HWND xSplitSelect = CreateWindowEx(0, L"COMBOBOX", L"", WS_CHILD | WS_VISIBLE | WS_VSCROLL | CBS_DROPDOWNLIST, 60, 66, 120, 200, hWnd, NULL, hInst, NULL);
+    xSplitSelect = CreateWindowEx(0, L"COMBOBOX", L"", WS_CHILD | WS_VISIBLE | WS_VSCROLL | CBS_DROPDOWNLIST, 60, 66, 120, 200, hWnd, (HMENU)ID_X_SPLIT, hInst, NULL);
     for (int i = MIN_X_SPLIT; i <= MAX_X_SPLIT; i++)
     {
         wchar_t buffer[10];
@@ -229,7 +271,7 @@ void drawForm(HWND hWnd)
         SendMessage(xSplitSelect, CB_ADDSTRING, 0, (LPARAM)buffer);
     }
 
-    HWND ySplitSelect = CreateWindowEx(0, L"COMBOBOX", L"", WS_CHILD | WS_VISIBLE | WS_VSCROLL | CBS_DROPDOWNLIST, 250, 66, 120, 200, hWnd, NULL, hInst, NULL);
+    ySplitSelect = CreateWindowEx(0, L"COMBOBOX", L"", WS_CHILD | WS_VISIBLE | WS_VSCROLL | CBS_DROPDOWNLIST, 250, 66, 120, 200, hWnd, (HMENU)ID_Y_SPLIT, hInst, NULL);
     for (int i = MIN_Y_SPLIT; i <= MAX_Y_SPLIT; i++)
     {
         wchar_t buffer[10];
@@ -238,17 +280,17 @@ void drawForm(HWND hWnd)
     }
 
     // line width
-    lineWidthSlider = CreateWindowEx(0, TRACKBAR_CLASS, NULL, WS_CHILD | WS_VISIBLE | TBS_HORZ | TBS_AUTOTICKS, 60, 116, 100, 30, hWnd, NULL, hInst, NULL);
+    lineWidthSlider = CreateWindowEx(0, TRACKBAR_CLASS, NULL, WS_CHILD | WS_VISIBLE | TBS_HORZ | TBS_AUTOTICKS, 60, 116, 100, 30, hWnd, (HMENU)ID_LINE_WIDTH, hInst, NULL);
     SendMessage(lineWidthSlider, TBM_SETRANGE, TRUE, MAKELONG(MIN_LINE_WIDTH, MAX_LINE_WIDTH));
     SendMessage(lineWidthSlider, TBM_SETTICFREQ, 2, 0);
 
     lineWidthText = CreateWindowEx(0, L"STATIC", L"0", WS_CHILD | WS_VISIBLE, 160, 116, 30, 30, hWnd, NULL, hInst, NULL);
 
     // opposed
-    HWND opposedCheck = CreateWindowW(L"Button", NULL, WS_CHILD | WS_VISIBLE | BS_AUTOCHECKBOX, 250, 116, 30, 30, hWnd, NULL, hInst, NULL);
+    opposedCheck = CreateWindowW(L"Button", NULL, WS_CHILD | WS_VISIBLE | BS_AUTOCHECKBOX, 250, 116, 30, 30, hWnd, (HMENU)ID_OPPOESD, hInst, NULL);
 
     // grid
-    HWND gridCheck = CreateWindowW(L"Button", NULL, WS_CHILD | WS_VISIBLE | BS_AUTOCHECKBOX, 350, 116, 30, 30, hWnd, NULL, hInst, NULL);
+    gridCheck = CreateWindowW(L"Button", NULL, WS_CHILD | WS_VISIBLE | BS_AUTOCHECKBOX, 350, 116, 30, 30, hWnd, (HMENU)ID_GRID, hInst, NULL);
 
 
     // colors
@@ -262,7 +304,7 @@ void drawForm(HWND hWnd)
     SendMessage(fontSizeSlider, TBM_SETRANGE, TRUE, MAKELONG(MIN_FONT_SIZE, MAX_FONT_SIZE));
     SendMessage(fontSizeSlider, TBM_SETTICFREQ, 2, 0);
 
-    fontSizeText = CreateWindowEx(0, L"STATIC", L"0", WS_CHILD | WS_VISIBLE, 350, 166, 30, 30, hWnd, NULL, hInst, NULL);
+    fontSizeText = CreateWindowEx(0, L"STATIC", L"0", WS_CHILD | WS_VISIBLE, 350, 166, 30, 30, hWnd, (HMENU)ID_FONT_SIZE, hInst, NULL);
 
     // help
     HWND staticText = CreateWindowW(L"STATIC", L"https://github.com/AntoniotheFuture/battle-desk", WS_VISIBLE | WS_CHILD | SS_NOTIFY | SS_LEFT | SS_WORDELLIPSIS,
@@ -278,6 +320,8 @@ void drawForm(HWND hWnd)
     SetTextColor(hdcButton, RGB(0, 0, 255));  // RGB(0, 0, 255) 表示蓝色
 
     ReleaseDC(staticText, hdcButton);  // 释放设备上下文
+
+    render();
 }
 
 
@@ -302,10 +346,50 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
             switch (wmId)
             {
             case IDM_EXIT:
+            {
                 DestroyWindow(hWnd);
                 break;
+            }
+            case ID_SCREEN:
+            {
+                break;
+            }
+            case ID_ENABLE:
+            {
+                int checkBoxState = SendMessage(enableCheck, BM_GETCHECK, 0, 0);
+                ENABLE = (checkBoxState == BST_CHECKED);
+                render();
+                break;
+            }
+            case ID_X_SPLIT:
+            {
+
+                break;
+            }
+            case ID_Y_SPLIT:
+            {
+                break;
+            }
+            case ID_LINE_WIDTH:
+            {
+                break;
+            }
+            case ID_OPPOESD:
+            {
+                int checkBoxState = SendMessage(opposedCheck, BM_GETCHECK, 0, 0);
+                OPPOSED = (checkBoxState == BST_CHECKED);
+                render();
+                break;
+            }
+            case ID_GRID:
+            {
+                int checkBoxState = SendMessage(gridCheck, BM_GETCHECK, 0, 0);
+                FULL_GRID = (checkBoxState == BST_CHECKED);
+                render();
+                break;
+            }
             case ID_COLORPICKER:
-                
+            {
                 if (HIWORD(wParam) == BN_CLICKED) {
                     CHOOSECOLOR cc;
                     COLORREF colorCustom[16] = { 0 }; // 自定义颜色数组
@@ -320,11 +404,13 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
                     if (ChooseColor(&cc)) {
                         DRAW_COLOR = cc.rgbResult;
                         RedrawWindow(colorPicker, NULL, NULL, RDW_INVALIDATE);
+                        render();
                     }
                 }
                 break;
+            }
             case ID_STROKECOLORPICKER:
-
+            {
                 if (HIWORD(wParam) == BN_CLICKED) {
                     CHOOSECOLOR cc;
                     COLORREF colorCustom[16] = { 0 }; // 自定义颜色数组
@@ -339,15 +425,22 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
                     if (ChooseColor(&cc)) {
                         LINE_STROKE_COLOR = cc.rgbResult;
                         RedrawWindow(strokePicker, NULL, NULL, RDW_INVALIDATE);
+                        render();
                     }
                 }
                 break;
+            }
+            case ID_FONT_SIZE:
+            {
+                break;
+            }
             case ID_HELP:
                 ShellExecute(NULL, L"open", L"https://github.com/AntoniotheFuture/battle-desk", NULL, NULL, SW_SHOWNORMAL);
                 break;
             default:
                 return DefWindowProc(hWnd, message, wParam, lParam);
             }
+            
         }
         break;
     case WM_CREATE:
@@ -418,4 +511,128 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
         return DefWindowProc(hWnd, message, wParam, lParam);
     }
     return 0;
+}
+
+
+//
+//  函数: WndProc(HWND, UINT, WPARAM, LPARAM)
+//
+//  目标: 处理主窗口的消息。
+//
+//  WM_COMMAND  - 处理应用程序菜单
+//  WM_PAINT    - 绘制主窗口
+//  WM_DESTROY  - 发送退出消息并返回
+//
+//
+LRESULT CALLBACK WndProcB(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
+{
+    switch (message) {
+        case WM_PAINT: {
+            
+            PAINTSTRUCT ps;
+            HDC hdc = BeginPaint(hWnd, &ps);
+            // 清除窗口上之前绘制的内容（使用白色背景覆盖）
+            //RECT clientRect;
+            //GetClientRect(hWnd, &clientRect);
+            //HBRUSH whiteBrush = CreateSolidBrush(RGB(255, 255, 255));
+            //FillRect(hdc, &clientRect, whiteBrush);
+            //DeleteObject(whiteBrush);
+            // 设置绘制颜色和字体
+
+            HFONT font = CreateFont(30, 0, 0, 0, FW_BOLD, FALSE, FALSE, FALSE, DEFAULT_CHARSET, OUT_OUTLINE_PRECIS, CLIP_DEFAULT_PRECIS, CLEARTYPE_QUALITY, VARIABLE_PITCH, _T("Arial"));
+            SelectObject(hdc, font);
+
+            // 创建画笔对象，设置线条颜色和粗细
+            static HPEN hPen = CreatePen(PS_SOLID, LINE_WIDTH, DRAW_COLOR);
+
+            int width = 1920;
+            int height = 1080;
+            int markWidth = 100;
+            int markHeigth = 100;
+
+            // 选择画笔对象
+            HPEN hOldPen = (HPEN)SelectObject(hdc, hPen);
+
+            int gridWidth = width / X_SPLIT;
+            int gridHeight = height / Y_SPLIT;
+
+            int textStartX = (gridWidth + FONT_SIZE) / 2;
+            int textStartY = (gridHeight + FONT_SIZE) / 2;
+            if (FULL_GRID) {
+                for (int x = 1; x < X_SPLIT; x++)
+                {
+                    int startX = gridWidth * x;
+                    MoveToEx(hdc, startX, 0, NULL);
+                    LineTo(hdc, startX, height);
+                    TextOut(hdc, textStartX, 20, _T("A"), 14);
+                    TextOut(hdc, textStartX, height - 20 - FONT_SIZE, _T("A"), 14);
+                    textStartX += gridWidth;
+                }
+                TextOut(hdc, textStartX, 20, _T("A"), 14);
+                TextOut(hdc, textStartX, height - 20 - FONT_SIZE, _T("A"), 14);
+
+                for (int y = 1; y < Y_SPLIT; y++)
+                {
+                    int startY = gridHeight * y;
+                    MoveToEx(hdc, 0, startY, NULL);
+                    LineTo(hdc, width, startY);
+                    TextOut(hdc, 20, textStartY, _T("1"), 14);
+                    TextOut(hdc, width - 20 - FONT_SIZE, textStartY, _T("1"), 14);
+                    textStartY += gridHeight;
+                }
+                TextOut(hdc, textStartY, 20, _T("1"), 14);
+                TextOut(hdc, textStartY, height - 20 - FONT_SIZE, _T("1"), 14);
+            }
+            else {
+                for (int x = 1; x < X_SPLIT; x++)
+                {
+                    int startX = gridWidth * x;
+                    MoveToEx(hdc, startX, 0, NULL);
+                    LineTo(hdc, startX, markHeigth);
+                    TextOut(hdc, textStartX, 20, _T("A"), 14);
+                    if (OPPOSED) {
+                        MoveToEx(hdc, startX, height - markHeigth, NULL);
+                        LineTo(hdc, startX, height);
+                        TextOut(hdc, textStartX, height - 20 - FONT_SIZE, _T("A"), 14);
+                    }
+                    textStartX += gridWidth;
+                }
+                TextOut(hdc, textStartX, 20, _T("A"), 14);
+                if (OPPOSED) {
+                    TextOut(hdc, textStartX, height - 20 - FONT_SIZE, _T("A"), 14);
+                }
+
+                for (int y = 1; y < Y_SPLIT; y++)
+                {
+                    int startY = gridHeight * y;
+                    MoveToEx(hdc, 0, startY, NULL);
+                    LineTo(hdc, markWidth, startY);
+                    TextOut(hdc, 20, textStartY, _T("1"), 14);
+                    if (OPPOSED) {
+                        MoveToEx(hdc, width - markWidth, startY, NULL);
+                        LineTo(hdc, width, startY);
+                        TextOut(hdc, width - 20 - FONT_SIZE, textStartY, _T("1"), 14);
+                    }
+                    textStartY += gridHeight;
+                }
+                TextOut(hdc, 20, textStartY, _T("1"), 14);
+                if (OPPOSED) {
+                    TextOut(hdc, width - 20 - FONT_SIZE, textStartY, _T("1"), 14);
+                }
+            }
+
+            SelectObject(hdc, hOldPen);
+            DeleteObject(hPen);
+            // 清理资源
+            DeleteObject(font);
+
+            EndPaint(screenHwnd, &ps);
+            return 0;
+        }
+        default: {
+            return DefWindowProc(hWnd, message, wParam, lParam);
+        }
+    }
+
+    return DefWindowProc(hWnd, message, wParam, lParam);
 }
