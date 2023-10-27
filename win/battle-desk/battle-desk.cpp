@@ -384,7 +384,7 @@ void drawForm(HWND hWnd)
     );
 
     // version
-    HWND versionText = CreateWindowW(L"STATIC", L"1.0.0", WS_VISIBLE | WS_CHILD | SS_NOTIFY | SS_LEFT | SS_WORDELLIPSIS,
+    HWND versionText = CreateWindowW(L"STATIC", L"0.0.1", WS_VISIBLE | WS_CHILD | SS_NOTIFY | SS_LEFT | SS_WORDELLIPSIS,
         10, 316, 300, 30, hWnd,
         NULL,
         NULL,
