@@ -383,6 +383,14 @@ void drawForm(HWND hWnd)
         NULL
     );
 
+    // version
+    HWND versionText = CreateWindowW(L"STATIC", L"1.0.0", WS_VISIBLE | WS_CHILD | SS_NOTIFY | SS_LEFT | SS_WORDELLIPSIS,
+        10, 316, 300, 30, hWnd,
+        NULL,
+        NULL,
+        NULL
+    );
+
     wchar_t valueText[16];
     swprintf_s(valueText, L"%d", LINE_WIDTH);
     SetWindowText(lineWidthText, valueText);

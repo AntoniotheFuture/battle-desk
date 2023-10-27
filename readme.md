@@ -24,3 +24,10 @@ Battle Desk can help you quickly locate screen elements when sharing screens wit
 - [ ] MacOS.
 - [ ] Mutil monitors support.
 
+## Build
+
+### Windows:
+
+- Visual Studio 2022
+- C++
+- GDI+
