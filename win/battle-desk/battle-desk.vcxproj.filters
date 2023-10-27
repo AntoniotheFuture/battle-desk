@@ -75,5 +75,14 @@
     <Image Include="src\transparent.bmp">
       <Filter>资源文件</Filter>
     </Image>
+    <Image Include="src\bitmap11.bmp">
+      <Filter>资源文件</Filter>
+    </Image>
+    <Image Include="src\dotted.bmp">
+      <Filter>资源文件</Filter>
+    </Image>
+    <Image Include="src\single.bmp">
+      <Filter>资源文件</Filter>
+    </Image>
   </ItemGroup>
 </Project>

@@ -16,8 +16,9 @@ ATOM                MyRegisterClass(HINSTANCE hInstance);
 BOOL                InitInstance(HINSTANCE, int);
 LRESULT CALLBACK    WndProc(HWND, UINT, WPARAM, LPARAM);
 LRESULT CALLBACK    WndProcB(HWND, UINT, WPARAM, LPARAM);
-void drawBitMap(HDC, int, int);
 
+void drawBitMap(HDC, int, int);
+void setCheckboxes();
 
 // values limit
 int MIN_X_SPLIT = 2;
@@ -26,22 +27,22 @@ int MIN_Y_SPLIT = 2;
 int MAX_Y_SPLIT = 25;
 int MIN_FONT_SIZE = 5;
 int MAX_FONT_SIZE = 100;
-int MIN_LINE_WIDTH = 2;
-int MAX_LINE_WIDTH = 100;
+int MIN_LINE_WIDTH = 1;
+int MAX_LINE_WIDTH = 40;
 
 int SCREEN = 0;
 bool ENABLE = TRUE;
 COLORREF DRAW_COLOR = RGB(0, 255, 255);
-COLORREF LINE_STROKE_COLOR = RGB(255, 255, 255);
+COLORREF LINE_STROKE_COLOR = RGB(250, 250, 250);
 BYTE ALPHA = 255;
 int X_SPLIT = 6;
 int Y_SPLIT = 4;
 int LINE_WIDTH = 3;
-bool OPPOSED = TRUE;
-bool FULL_GRID = FALSE;
 bool STROKE = TRUE;
 int FONT_SIZE = 50;
 int TRANSPARENT_PERCENT = 50;
+
+int GRID_MODE = 1;
 
 std::wstring chars = L"ABCDEFGHIJKLMNOPQRSTUVWXYZ";
 
@@ -64,7 +65,9 @@ HWND enableCheck;
 HWND xSplitSelect;
 HWND ySplitSelect;
 
+HWND singleCheck;
 HWND opposedCheck;
+HWND dottedCheck;
 HWND gridCheck;
 
 
@@ -264,23 +267,32 @@ void drawForm(HWND hWnd)
     HBITMAP xSplitIcon = (HBITMAP)LoadImageW(GetModuleHandle(NULL), MAKEINTRESOURCE(IDB_BITMAP8), IMAGE_BITMAP, 0, 0, 0);
     HBITMAP ySplitIcon = (HBITMAP)LoadImageW(GetModuleHandle(NULL), MAKEINTRESOURCE(IDB_BITMAP9), IMAGE_BITMAP, 0, 0, 0);
     HBITMAP lineWidthIcon = (HBITMAP)LoadImageW(GetModuleHandle(NULL), MAKEINTRESOURCE(IDB_BITMAP5), IMAGE_BITMAP, 0, 0, 0);
+
+    HBITMAP singleIcon = (HBITMAP)LoadImageW(GetModuleHandle(NULL), MAKEINTRESOURCE(IDB_BITMAP12), IMAGE_BITMAP, 0, 0, 0);
     HBITMAP opposedIcon = (HBITMAP)LoadImageW(GetModuleHandle(NULL), MAKEINTRESOURCE(IDB_BITMAP6), IMAGE_BITMAP, 0, 0, 0);
+    HBITMAP dottedIcon = (HBITMAP)LoadImageW(GetModuleHandle(NULL), MAKEINTRESOURCE(IDB_BITMAP11), IMAGE_BITMAP, 0, 0, 0);
     HBITMAP gridIcon = (HBITMAP)LoadImageW(GetModuleHandle(NULL), MAKEINTRESOURCE(IDB_BITMAP3), IMAGE_BITMAP, 0, 0, 0);
+
     HBITMAP colorPadIcon = (HBITMAP)LoadImageW(GetModuleHandle(NULL), MAKEINTRESOURCE(IDB_BITMAP1), IMAGE_BITMAP, 0, 0, 0);
     HBITMAP transparentIcon = (HBITMAP)LoadImageW(GetModuleHandle(NULL), MAKEINTRESOURCE(IDB_BITMAP10), IMAGE_BITMAP, 0, 0, 0);
     HBITMAP fontSizeIcon = (HBITMAP)LoadImageW(GetModuleHandle(NULL), MAKEINTRESOURCE(IDB_BITMAP2), IMAGE_BITMAP, 0, 0, 0);
     HBITMAP helpIcon = (HBITMAP)LoadImageW(GetModuleHandle(NULL), MAKEINTRESOURCE(IDB_BITMAP4), IMAGE_BITMAP, 0, 0, 0);
 
+
+
     HWND hImage1 = CreateWindowW(L"STATIC", L"", WS_CHILD | WS_VISIBLE | SS_BITMAP, 10, 10, 50, 50, hWnd, NULL, hInst, NULL);
     HWND hImage2 = CreateWindowW(L"STATIC", L"", WS_CHILD | WS_VISIBLE | SS_BITMAP, 10, 60, 50, 50, hWnd, NULL, hInst, NULL);
     HWND hImage3 = CreateWindowW(L"STATIC", L"", WS_CHILD | WS_VISIBLE | SS_BITMAP, 200, 60, 50, 50, hWnd, NULL, hInst, NULL);
     HWND hImage4 = CreateWindowW(L"STATIC", L"", WS_CHILD | WS_VISIBLE | SS_BITMAP, 10, 110, 50, 50, hWnd, NULL, hInst, NULL);
-    HWND hImage5 = CreateWindowW(L"STATIC", L"", WS_CHILD | WS_VISIBLE | SS_BITMAP, 200, 110, 50, 50, hWnd, NULL, hInst, NULL);
-    HWND hImage6 = CreateWindowW(L"STATIC", L"", WS_CHILD | WS_VISIBLE | SS_BITMAP, 300, 110, 50, 50, hWnd, NULL, hInst, NULL);
     HWND hImage7 = CreateWindowW(L"STATIC", L"", WS_CHILD | WS_VISIBLE | SS_BITMAP, 10, 160, 50, 50, hWnd, NULL, hInst, NULL);
     HWND hImage10 = CreateWindowW(L"STATIC", L"", WS_CHILD | WS_VISIBLE | SS_BITMAP, 200, 160, 50, 50, hWnd, NULL, hInst, NULL);
-    HWND hImage8 = CreateWindowW(L"STATIC", L"", WS_CHILD | WS_VISIBLE | SS_BITMAP, 10, 210, 50, 50, hWnd, NULL, hInst, NULL);
+    HWND hImage8 = CreateWindowW(L"STATIC", L"", WS_CHILD | WS_VISIBLE | SS_BITMAP, 200, 110, 50, 50, hWnd, NULL, hInst, NULL);
     HWND hImage9 = CreateWindowW(L"STATIC", L"", WS_CHILD | WS_VISIBLE | SS_BITMAP, 10, 260, 50, 50, hWnd, NULL, hInst, NULL);
+
+    HWND hImage12 = CreateWindowW(L"STATIC", L"", WS_CHILD | WS_VISIBLE | SS_BITMAP, 10, 210, 50, 50, hWnd, NULL, hInst, NULL);
+    HWND hImage5 = CreateWindowW(L"STATIC", L"", WS_CHILD | WS_VISIBLE | SS_BITMAP, 100, 210, 50, 50, hWnd, NULL, hInst, NULL);
+    HWND hImage11 = CreateWindowW(L"STATIC", L"", WS_CHILD | WS_VISIBLE | SS_BITMAP, 190, 210, 50, 50, hWnd, NULL, hInst, NULL);
+    HWND hImage6 = CreateWindowW(L"STATIC", L"", WS_CHILD | WS_VISIBLE | SS_BITMAP, 280, 210, 50, 50, hWnd, NULL, hInst, NULL);    
     
     SendMessageW(hImage1, STM_SETIMAGE, IMAGE_BITMAP, (LPARAM)screenIcon);
     SendMessageW(hImage2, STM_SETIMAGE, IMAGE_BITMAP, (LPARAM)xSplitIcon);
@@ -292,6 +304,8 @@ void drawForm(HWND hWnd)
     SendMessageW(hImage10, STM_SETIMAGE, IMAGE_BITMAP, (LPARAM)transparentIcon);
     SendMessageW(hImage8, STM_SETIMAGE, IMAGE_BITMAP, (LPARAM)fontSizeIcon);
     SendMessageW(hImage9, STM_SETIMAGE, IMAGE_BITMAP, (LPARAM)helpIcon);
+    SendMessageW(hImage11, STM_SETIMAGE, IMAGE_BITMAP, (LPARAM)dottedIcon);
+    SendMessageW(hImage12, STM_SETIMAGE, IMAGE_BITMAP, (LPARAM)singleIcon);
 
 
     // screen select
@@ -326,18 +340,18 @@ void drawForm(HWND hWnd)
     // line width
     lineWidthSlider = CreateWindowEx(0, TRACKBAR_CLASS, NULL, WS_CHILD | WS_VISIBLE | TBS_HORZ | TBS_AUTOTICKS, 60, 116, 100, 30, hWnd, (HMENU)ID_LINE_WIDTH, hInst, NULL);
     SendMessage(lineWidthSlider, TBM_SETRANGE, TRUE, MAKELONG(MIN_LINE_WIDTH, MAX_LINE_WIDTH));
-    SendMessage(lineWidthSlider, TBM_SETTICFREQ, 2, 0);
+    SendMessage(lineWidthSlider, TBM_SETTICFREQ, 1, 0);
     SendMessage(lineWidthSlider, TBM_SETPOS, TRUE, LINE_WIDTH);
 
     lineWidthText = CreateWindowEx(0, L"STATIC", L"0", WS_CHILD | WS_VISIBLE, 160, 116, 30, 30, hWnd, NULL, hInst, NULL);
 
-    // opposed
-    opposedCheck = CreateWindowW(L"Button", NULL, WS_CHILD | WS_VISIBLE | BS_AUTOCHECKBOX, 250, 116, 30, 30, hWnd, (HMENU)ID_OPPOESD, hInst, NULL);
-    SendMessage(opposedCheck, BM_SETCHECK, OPPOSED ? BST_CHECKED : BST_UNCHECKED, 0);
+    // font size
+    fontSizeSlider = CreateWindowEx(0, TRACKBAR_CLASS, NULL, WS_CHILD | WS_VISIBLE | TBS_HORZ | TBS_AUTOTICKS, 250, 116, 100, 30, hWnd, NULL, hInst, NULL);
+    SendMessage(fontSizeSlider, TBM_SETRANGE, TRUE, MAKELONG(MIN_FONT_SIZE, MAX_FONT_SIZE));
+    SendMessage(fontSizeSlider, TBM_SETTICFREQ, 2, 0);
+    SendMessage(fontSizeSlider, TBM_SETPOS, TRUE, FONT_SIZE);
 
-    // grid
-    gridCheck = CreateWindowW(L"Button", NULL, WS_CHILD | WS_VISIBLE | BS_AUTOCHECKBOX, 350, 116, 30, 30, hWnd, (HMENU)ID_GRID, hInst, NULL);
-    SendMessage(gridCheck, BM_SETCHECK, FULL_GRID ? BST_CHECKED : BST_UNCHECKED, 0);
+    fontSizeText = CreateWindowEx(0, L"STATIC", L"0", WS_CHILD | WS_VISIBLE, 350, 116, 30, 30, hWnd, (HMENU)ID_FONT_SIZE, hInst, NULL);
 
     // colors
     colorPicker = CreateWindow(L"Button", L"", WS_CHILD | WS_VISIBLE | BS_OWNERDRAW, 60, 166, 30, 30, hWnd, (HMENU)ID_COLORPICKER, hInst, NULL);
@@ -353,13 +367,13 @@ void drawForm(HWND hWnd)
 
     transparentText = CreateWindowEx(0, L"STATIC", L"0\%", WS_CHILD | WS_VISIBLE, 350, 166, 30, 30, hWnd, NULL, hInst, NULL);
 
-    // font size
-    fontSizeSlider = CreateWindowEx(0, TRACKBAR_CLASS, NULL, WS_CHILD | WS_VISIBLE | TBS_HORZ | TBS_AUTOTICKS, 60, 216, 100, 30, hWnd, NULL, hInst, NULL);
-    SendMessage(fontSizeSlider, TBM_SETRANGE, TRUE, MAKELONG(MIN_FONT_SIZE, MAX_FONT_SIZE));
-    SendMessage(fontSizeSlider, TBM_SETTICFREQ, 2, 0);
-    SendMessage(fontSizeSlider, TBM_SETPOS, TRUE, FONT_SIZE);
-
-    fontSizeText = CreateWindowEx(0, L"STATIC", L"0", WS_CHILD | WS_VISIBLE, 160, 216, 30, 30, hWnd, (HMENU)ID_FONT_SIZE, hInst, NULL);
+    // gridmodes
+    singleCheck = CreateWindowW(L"Button", NULL, WS_CHILD | WS_VISIBLE | BS_AUTOCHECKBOX, 60, 216, 30, 30, hWnd, (HMENU)ID_SINGLE, hInst, NULL);
+    opposedCheck = CreateWindowW(L"Button", NULL, WS_CHILD | WS_VISIBLE | BS_AUTOCHECKBOX, 150, 216, 30, 30, hWnd, (HMENU)ID_OPPOESD, hInst, NULL);
+    dottedCheck = CreateWindowW(L"Button", NULL, WS_CHILD | WS_VISIBLE | BS_AUTOCHECKBOX, 240, 216, 30, 30, hWnd, (HMENU)ID_DOTTED, hInst, NULL);
+    gridCheck = CreateWindowW(L"Button", NULL, WS_CHILD | WS_VISIBLE | BS_AUTOCHECKBOX, 330, 216, 30, 30, hWnd, (HMENU)ID_GRID, hInst, NULL);
+    
+    setCheckboxes();
 
     // help
     HWND staticText = CreateWindowW(L"STATIC", L"https://github.com/AntoniotheFuture/battle-desk", WS_VISIBLE | WS_CHILD | SS_NOTIFY | SS_LEFT | SS_WORDELLIPSIS,
@@ -390,6 +404,13 @@ void drawForm(HWND hWnd)
     ReleaseDC(staticText, hdcButton);  // 释放设备上下文
 
     render();
+}
+
+void setCheckboxes() {
+    SendMessage(singleCheck, BM_SETCHECK, GRID_MODE == 0 ? BST_CHECKED : BST_UNCHECKED, 0);
+    SendMessage(opposedCheck, BM_SETCHECK, GRID_MODE == 1 ? BST_CHECKED : BST_UNCHECKED, 0);
+    SendMessage(dottedCheck, BM_SETCHECK, GRID_MODE == 2 ? BST_CHECKED : BST_UNCHECKED, 0);
+    SendMessage(gridCheck, BM_SETCHECK, GRID_MODE == 3 ? BST_CHECKED : BST_UNCHECKED, 0);
 }
 
 
@@ -447,18 +468,44 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
                 }
                 break;
             }
+            case ID_SINGLE:
+            {
+                int checkBoxState = SendMessage(singleCheck, BM_GETCHECK, 0, 0);
+                if (checkBoxState == BST_CHECKED) {
+                    GRID_MODE = 0;
+                    setCheckboxes();
+                    render();
+                }
+                break;
+            }
             case ID_OPPOESD:
             {
                 int checkBoxState = SendMessage(opposedCheck, BM_GETCHECK, 0, 0);
-                OPPOSED = (checkBoxState == BST_CHECKED);
-                render();
+                if (checkBoxState == BST_CHECKED) {
+                    GRID_MODE = 1;
+                    setCheckboxes();
+                    render();
+                }
+                break;
+            }
+            case ID_DOTTED:
+            {
+                int checkBoxState = SendMessage(dottedCheck, BM_GETCHECK, 0, 0);
+                if (checkBoxState == BST_CHECKED) {
+                    GRID_MODE = 2;
+                    setCheckboxes();
+                    render();
+                }
                 break;
             }
             case ID_GRID:
             {
                 int checkBoxState = SendMessage(gridCheck, BM_GETCHECK, 0, 0);
-                FULL_GRID = (checkBoxState == BST_CHECKED);
-                render();
+                if (checkBoxState == BST_CHECKED) {
+                    GRID_MODE = 3;
+                    setCheckboxes();
+                    render();
+                }
                 break;
             }
             case ID_COLORPICKER:
@@ -598,6 +645,18 @@ void DrawTransparentText(HDC hdc, const WCHAR* text, int x, int y, int alpha) {
 }
 
 
+wchar_t* chatToWchar(const char* ch)
+{
+    wchar_t* wchar;
+    int len = MultiByteToWideChar(CP_ACP, 0, ch, strlen(ch), NULL, 0);
+    wchar = new wchar_t[len + 1];
+    MultiByteToWideChar(CP_ACP, 0, ch, strlen(ch), wchar, len);
+    wchar[len] = '\0';
+    return wchar;
+}
+
+
+
 //
 //  函数: WndProc(HWND, UINT, WPARAM, LPARAM)
 //
@@ -632,6 +691,8 @@ LRESULT CALLBACK WndProcB(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
             int textStartX = (gridWidth + FONT_SIZE) / 2;
             int textStartY = (gridHeight + FONT_SIZE) / 2;
 
+            int strokeWidth = 2;
+
             Graphics graphics(hdc);
 
             Bitmap bitmap(width, height, PixelFormat32bppARGB);
@@ -639,87 +700,161 @@ LRESULT CALLBACK WndProcB(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
             BYTE g = GetGValue(DRAW_COLOR);
             BYTE b = GetBValue(DRAW_COLOR);
 
+            BYTE sr = GetRValue(LINE_STROKE_COLOR);
+            BYTE sg = GetGValue(LINE_STROKE_COLOR);
+            BYTE sb = GetBValue(LINE_STROKE_COLOR);
+
+            Color mainColor(255, r, g, b);
+            Color strokeColor(255, sr, sg, sb);
+
             Graphics bitmapGraphics(&bitmap);
-            Color tColor(255, r, g, b);
-            Pen pen(tColor, LINE_WIDTH);
+            Pen pen(mainColor, LINE_WIDTH);
             pen.SetLineCap(LineCapRound, LineCapRound, DashCapRound);
             bitmapGraphics.SetSmoothingMode(SmoothingModeAntiAlias);
 
-            Gdiplus::Font gFont(L"Arial", FONT_SIZE);
-            Gdiplus::SolidBrush brush(tColor);
+
+            FontFamily fontFamily(L"Arial");  // 字体
+            Gdiplus::Font font(L"Arial", FONT_SIZE, FontStyleRegular, UnitPixel);
+            Gdiplus::SolidBrush brush(mainColor);
+            Gdiplus::SolidBrush strokeBrush(Color(sr, sg, sb));
             Gdiplus::StringFormat format;
             format.SetAlignment(Gdiplus::StringAlignmentCenter);
             format.SetLineAlignment(Gdiplus::StringAlignmentCenter);
 
-            Gdiplus::RectF gRect(500, 500, width, height);
-            for (int x = 1; x < X_SPLIT; x++)
+            Pen borderPen(strokeColor, strokeWidth);
+            SolidBrush textBrush(mainColor);
+
+            Gdiplus::RectF textRect(500, 500, width, height);
+
+            GraphicsPath path;
+
+            std::wstring text = L"Hello, GDI+";
+            for (int x = 1; x <= X_SPLIT; x++)
             {
                 wchar_t str = chars[x - 1];
-                gRect = RectF((x - 1) * gridWidth, 0, gridWidth, markHeigth);
-                bitmapGraphics.DrawString(&str, 1, &gFont, gRect, &format, &brush);
+                textRect = RectF((x - 1) * gridWidth, 0, gridWidth, markHeigth);
+                path.AddString(&str, 1, &fontFamily, FontStyleRegular, FONT_SIZE + 2, textRect, &format);
+                bitmapGraphics.DrawString(&str, 1, &font, textRect, &format, &brush);
                 int startX = gridWidth * x;
-                if (OPPOSED) {
-                    gRect = RectF((x - 1) * gridWidth, height - markHeigth, gridWidth, markHeigth);
-                    bitmapGraphics.DrawString(&str, 1, &gFont, gRect, &format, &brush);
+                if (GRID_MODE > 0) {
+                    textRect = RectF((x - 1) * gridWidth, height - markHeigth, gridWidth, markHeigth);
+                    path.AddString(&str, 1, &fontFamily, FontStyleRegular, FONT_SIZE + 2, textRect, &format);
+                    bitmapGraphics.DrawString(&str, 1, &font, textRect, &format, &brush);
                 }
             }
-            wchar_t str = chars[X_SPLIT - 1];
-            gRect = RectF(width - gridWidth, 0, gridWidth, markHeigth);
-            bitmapGraphics.DrawString(&str, 1, &gFont, gRect, &format, &brush);
-            if (OPPOSED) {
-                gRect = RectF(width - gridWidth, height - markHeigth, gridWidth, markHeigth);
-                bitmapGraphics.DrawString(&str, 1, &gFont, gRect, &format, &brush);
-            }
 
-            for (int y = 1; y < Y_SPLIT; y++)
+            for (int y = 1; y <= Y_SPLIT; y++)
             {
                 WCHAR intStr[10];
                 swprintf(intStr, 10, L"%d", y);
-                gRect = RectF(0, (y - 1) * gridHeight, markWidth, gridHeight);
-                bitmapGraphics.DrawString(intStr, 1, &gFont, gRect, &format, &brush);
-                if (OPPOSED) {
-                    gRect = RectF(width - markWidth, (y - 1) * gridHeight, markWidth, gridHeight);
-                    bitmapGraphics.DrawString(intStr, 1, &gFont, gRect, &format, &brush);
+                textRect = RectF(0, (y - 1) * gridHeight, markWidth, gridHeight);
+                path.AddString(intStr, 1, &fontFamily, FontStyleRegular, FONT_SIZE + 2, textRect, &format);
+                bitmapGraphics.DrawString(intStr, 1, &font, textRect, &format, &brush);
+                if (GRID_MODE > 0) {
+                    textRect = RectF(width - markWidth, (y - 1) * gridHeight, markWidth, gridHeight);
+                    path.AddString(intStr, 1, &fontFamily, FontStyleRegular, FONT_SIZE + 2, textRect, &format);
+                    bitmapGraphics.DrawString(intStr, 1, &font, textRect, &format, &brush);
                 }
             }
-            WCHAR intStr[10];
-            swprintf(intStr, 10, L"%d", Y_SPLIT);
-            gRect = RectF(0, height - gridHeight, markWidth, gridHeight);
-            bitmapGraphics.DrawString(intStr, 1, &gFont, gRect, &format, &brush);
-            if (OPPOSED) {
-                gRect = RectF(width - markWidth, height - gridHeight, markWidth, gridHeight);
-                bitmapGraphics.DrawString(intStr, 1, &gFont, gRect, &format, &brush);
-            }
 
-            if (FULL_GRID) {
+            graphics.DrawPath(&borderPen, &path);
+
+            Gdiplus::RectF strokeRect(500, 500, width, height);
+            Gdiplus::RectF fillRect(500, 500, width, height);
+            if (GRID_MODE == 3) {
                 for (int x = 1; x < X_SPLIT; x++)
                 {
                     int startX = gridWidth * x;
-                    bitmapGraphics.DrawLine(&pen, startX, 0, startX, height);
+                    int rx = startX - LINE_WIDTH / 2;
+                    int ry = 0;
+                    int rw = LINE_WIDTH;
+                    int rh = height;
+                    strokeRect = RectF(rx - strokeWidth, ry - strokeWidth, rw + strokeWidth * 2, rh + strokeWidth * 2);
+                    fillRect = RectF(rx, ry, rw, rh);
+                    bitmapGraphics.FillRectangle(&strokeBrush, strokeRect);
+                    bitmapGraphics.FillRectangle(&brush, fillRect);       
                 }
 
                 for (int y = 1; y < Y_SPLIT; y++)
                 {
                     int startY = gridHeight * y;
-                    bitmapGraphics.DrawLine(&pen, 0, startY, width, startY);
+                    int rx = 0;
+                    int ry = startY - LINE_WIDTH / 2;
+                    int rw = width;
+                    int rh = LINE_WIDTH;
+                    strokeRect = RectF(rx - strokeWidth, ry - strokeWidth, rw + strokeWidth * 2, rh + strokeWidth * 2);
+                    fillRect = RectF(rx, ry, rw, rh);
+                    bitmapGraphics.FillRectangle(&strokeBrush, strokeRect);
+                    bitmapGraphics.FillRectangle(&brush, fillRect);
                 }
             }
             else {
                 for (int x = 1; x < X_SPLIT; x++)
                 {
                     int startX = gridWidth * x;
-                    bitmapGraphics.DrawLine(&pen, startX, 0, startX, markHeigth);
-                    if (OPPOSED) {
-                        bitmapGraphics.DrawLine(&pen, startX, height - markHeigth, startX, height);
+                    int rx = startX - LINE_WIDTH / 2;
+                    int ry = 0;
+                    int rw = LINE_WIDTH;
+                    int rh = markHeigth;
+                    strokeRect = RectF(rx - strokeWidth, ry - strokeWidth, rw + strokeWidth * 2, rh + strokeWidth * 2);
+                    fillRect = RectF(rx, ry, rw, rh);
+                    bitmapGraphics.FillRectangle(&strokeBrush, strokeRect);
+                    bitmapGraphics.FillRectangle(&brush, fillRect);
+
+                    if (GRID_MODE > 0) {
+                        ry = height - markHeigth;
+                        strokeRect = RectF(rx - strokeWidth, ry - strokeWidth, rw + strokeWidth * 2, rh + strokeWidth * 2);
+                        fillRect = RectF(rx, ry, rw, rh);
+                        bitmapGraphics.FillRectangle(&strokeBrush, strokeRect);
+                        bitmapGraphics.FillRectangle(&brush, fillRect);
                     }
                 }
                 for (int y = 1; y < Y_SPLIT; y++)
                 {
                     int startY = gridHeight * y;
-                    bitmapGraphics.DrawLine(&pen, 0, startY, markWidth, startY);
-                    if (OPPOSED) {
-                        bitmapGraphics.DrawLine(&pen, width - markWidth, startY, width, startY);
+                    int rx = 0;
+                    int ry = startY - LINE_WIDTH / 2;
+                    int rw = markWidth;
+                    int rh = LINE_WIDTH;
+                    strokeRect = RectF(rx - strokeWidth, ry - strokeWidth, rw + strokeWidth * 2, rh + strokeWidth * 2);
+                    fillRect = RectF(rx, ry, rw, rh);
+                    bitmapGraphics.FillRectangle(&strokeBrush, strokeRect);
+                    bitmapGraphics.FillRectangle(&brush, fillRect);
+                    if (GRID_MODE > 0) {
+                        rx = width - markWidth;
+                        strokeRect = RectF(rx - strokeWidth, ry - strokeWidth, rw + strokeWidth * 2, rh + strokeWidth * 2);
+                        fillRect = RectF(rx, ry, rw, rh);
+                        bitmapGraphics.FillRectangle(&strokeBrush, strokeRect);
+                        bitmapGraphics.FillRectangle(&brush, fillRect);
                     }
+                }
+            }
+            if (GRID_MODE == 2) {
+                int crossLength = 30;
+                for (int x = 1; x < X_SPLIT; x++)
+                {
+                    for (int y = 1; y < Y_SPLIT; y++)
+                    {
+                        int startX = gridWidth * x;
+                        int startY = gridHeight * y;
+                        int rx = startX - LINE_WIDTH / 2;
+                        int ry = startY - crossLength / 2;
+                        int rw = LINE_WIDTH;
+                        int rh = crossLength;
+                        strokeRect = RectF(rx - strokeWidth, ry - strokeWidth, rw + strokeWidth * 2, rh + strokeWidth * 2);
+                        fillRect = RectF(rx, ry, rw, rh);
+                        bitmapGraphics.FillRectangle(&strokeBrush, strokeRect);
+                        bitmapGraphics.FillRectangle(&brush, fillRect);
+                        rx = startX - crossLength / 2;
+                        ry = startY - LINE_WIDTH / 2;
+                        rw = crossLength;
+                        rh = LINE_WIDTH;
+                        strokeRect = RectF(rx - strokeWidth, ry - strokeWidth, rw + strokeWidth * 2, rh + strokeWidth * 2);
+                        fillRect = RectF(rx, ry, rw, rh);
+                        bitmapGraphics.FillRectangle(&strokeBrush, strokeRect);
+                        bitmapGraphics.FillRectangle(&brush, fillRect);
+                    }
+                    
                 }
             }
             graphics.DrawImage(&bitmap, 0, 0);

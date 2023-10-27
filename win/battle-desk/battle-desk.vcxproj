@@ -145,13 +145,16 @@
   <ItemGroup>
     <Image Include="battle-desk.ico" />
     <Image Include="small.ico" />
+    <Image Include="src\bitmap11.bmp" />
     <Image Include="src\color_pad.bmp" />
+    <Image Include="src\dotted.bmp" />
     <Image Include="src\font_size.bmp" />
     <Image Include="src\grid.bmp" />
     <Image Include="src\help.bmp" />
     <Image Include="src\line_width.bmp" />
     <Image Include="src\opposed.bmp" />
     <Image Include="src\screen.bmp" />
+    <Image Include="src\single.bmp" />
     <Image Include="src\transparent.bmp" />
     <Image Include="src\x_split.bmp">
       <DeploymentContent Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">true</DeploymentContent>
