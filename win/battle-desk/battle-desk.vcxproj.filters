@@ -72,5 +72,8 @@
     <Image Include="src\y_split.bmp">
       <Filter>资源文件</Filter>
     </Image>
+    <Image Include="src\transparent.bmp">
+      <Filter>资源文件</Filter>
+    </Image>
   </ItemGroup>
 </Project>

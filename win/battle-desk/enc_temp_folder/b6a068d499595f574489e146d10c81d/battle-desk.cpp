@@ -1,4 +1,7 @@
-﻿#include "framework.h"
+﻿// battle-desk.cpp : 定义应用程序的入口点。
+//
+
+#include "framework.h"
 #include "battle-desk.h"
 #include <vector>
 #include <iostream>
@@ -7,11 +10,13 @@
 #define MAX_LOADSTRING 100
 
 // 全局变量:
-HINSTANCE hInst;
-WCHAR szTitle[MAX_LOADSTRING];
-WCHAR szWindowClass[MAX_LOADSTRING];
+HINSTANCE hInst;                                // 当前实例
+WCHAR szTitle[MAX_LOADSTRING];                  // 标题栏文本
+WCHAR szWindowClass[MAX_LOADSTRING];            // 主窗口类名
 std::vector<std::string> screenList;
 
+
+// 此代码模块中包含的函数的前向声明:
 ATOM                MyRegisterClass(HINSTANCE hInstance);
 BOOL                InitInstance(HINSTANCE, int);
 LRESULT CALLBACK    WndProc(HWND, UINT, WPARAM, LPARAM);
@@ -155,8 +160,10 @@ int APIENTRY wWinMain(_In_ HINSTANCE hInstance,
     UNREFERENCED_PARAMETER(hPrevInstance);
     UNREFERENCED_PARAMETER(lpCmdLine);
 
+    // TODO: 在此处放置代码。
     GetScreenList();
 
+    // 初始化全局字符串
     LoadStringW(hInstance, IDS_APP_TITLE, szTitle, MAX_LOADSTRING);
     LoadStringW(hInstance, IDC_BATTLEDESK, szWindowClass, MAX_LOADSTRING);
     MyRegisterClass(hInstance);
@@ -164,10 +171,12 @@ int APIENTRY wWinMain(_In_ HINSTANCE hInstance,
     wct.style = CS_HREDRAW | CS_VREDRAW;
     wct.lpfnWndProc = WndProcB;
     wct.hInstance = hInstance;
-    wct.hbrBackground = (HBRUSH)(COLOR_WINDOW + 1);
+    // wct.hCursor = LoadCursor(nullptr, IDC_ARROW);
+    wct.hbrBackground = (HBRUSH)(COLOR_WINDOW + 1);// (HBRUSH)GetStockObject(BLACK_BRUSH); //;// NULL;// (HBRUSH)(COLOR_WINDOW + 1);
     wct.lpszClassName = L"TransparentWindow";
     RegisterClassEx(&wct);
 
+    // 执行应用程序初始化:
     if (!InitInstance (hInstance, nCmdShow))
     {
         return FALSE;
@@ -177,12 +186,14 @@ int APIENTRY wWinMain(_In_ HINSTANCE hInstance,
 
     MSG msg;
 
+    // 主消息循环:
     while (GetMessage(&msg, nullptr, 0, 0))
     {
         if (msg.message == WM_USER)
         {
             if (msg.lParam == WM_LBUTTONUP)
             {
+                // 还原并显示窗口
                 ShowWindow(mainWin, SW_RESTORE);
                 SetForegroundWindow(mainWin);
             }
@@ -199,6 +210,7 @@ int APIENTRY wWinMain(_In_ HINSTANCE hInstance,
     GdiplusShutdown(gdiplusToken);
     return (int) msg.wParam;
 }
+
 
 
 //
@@ -465,11 +477,11 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
             {
                 if (HIWORD(wParam) == BN_CLICKED) {
                     CHOOSECOLOR cc;
-                    COLORREF colorCustom[16] = { 0 };
+                    COLORREF colorCustom[16] = { 0 }; // 自定义颜色数组
 
                     memset(&cc, 0, sizeof(cc));
                     cc.lStructSize = sizeof(cc);
-                    cc.hwndOwner = hWnd;
+                    cc.hwndOwner = hWnd; // 父窗口句柄
                     cc.lpCustColors = colorCustom;
                     cc.rgbResult = DRAW_COLOR;
                     cc.Flags = CC_FULLOPEN | CC_RGBINIT;
@@ -490,11 +502,11 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
             {
                 if (HIWORD(wParam) == BN_CLICKED) {
                     CHOOSECOLOR cc;
-                    COLORREF colorCustom[16] = { 0 };
+                    COLORREF colorCustom[16] = { 0 }; // 自定义颜色数组
 
                     memset(&cc, 0, sizeof(cc));
                     cc.lStructSize = sizeof(cc);
-                    cc.hwndOwner = hWnd;
+                    cc.hwndOwner = hWnd; // 父窗口句柄
                     cc.lpCustColors = colorCustom;
                     cc.rgbResult = LINE_STROKE_COLOR;
                     cc.Flags = CC_FULLOPEN | CC_RGBINIT;
@@ -553,7 +565,7 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
         break;
     case WM_CTLCOLORBTN: {
         HDC hDC = (HDC)wParam;
-        SetBkColor(hDC, DRAW_COLOR);
+        SetBkColor(hDC, DRAW_COLOR); // 设置按钮的背景颜色为红色
         return (LRESULT)CreateSolidBrush(DRAW_COLOR);
     }
     case WM_HSCROLL:
@@ -643,7 +655,8 @@ LRESULT CALLBACK WndProcB(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
             Color tColor(255, r, g, b);
             Pen pen(tColor, LINE_WIDTH);
             pen.SetLineCap(LineCapRound, LineCapRound, DashCapRound);
-            bitmapGraphics.SetSmoothingMode(SmoothingModeAntiAlias);
+
+            bitmapGraphics.SetSmoothingMode(SmoothingModeAntiAlias); // 设置抗锯齿模式
 
             Gdiplus::Font gFont(L"Arial", FONT_SIZE);
             Gdiplus::SolidBrush brush(tColor);
